@@ -181,7 +181,6 @@ class DstarD0TTree : public edm::EDAnalyzer {
 
       //edm::EDGetTokenT<reco::TrackCollection> trkToken_; //AOD
       edm::EDGetTokenT<edm::View<pat::PackedCandidate>> trkToken_; //MiniAOD
-      //edm::Handle< View < pat::packedPFCandidates >> trkToken_: //MiniAOD
       edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
 
       edm::EDGetTokenT<reco::GenParticleCollection> genParticlesTokenDstar_;
@@ -191,6 +190,7 @@ class DstarD0TTree : public edm::EDAnalyzer {
       //edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
 	  //edm::EDGetTokenT<edm::View<reco::GenParticle> > genParticlesToken_;
 
+	
 
       TransientVertex v_D0;
       math::XYZTLorentzVector d0kpi_p4;
