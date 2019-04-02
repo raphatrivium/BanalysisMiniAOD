@@ -218,6 +218,7 @@ void DstarD0TTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		if(iTrack1->charge()==0) continue;
 		if(fabs(iTrack1->eta())>2.1) continue; //All the mesons were reconstructed in the pseudorapidity range |eta|<2
 	   if(iTrack1->pt()<0.3) continue;
+		if(iTrack1->normalizedChi2()<0.3) continue;
 		if(fabs(iTrack1->pdgId())!=321) continue; //211->Pion, 321->Kaon+
 		//if(iTrack1->pt()<1.3) continue;
 		
