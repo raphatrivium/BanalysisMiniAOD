@@ -145,7 +145,7 @@ DstarD0TTree::~DstarD0TTree()
 
 
 
-
+//***********************************************************************************
 	// ------------ method called for each event  ------------
 void DstarD0TTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	{
@@ -213,26 +213,54 @@ void DstarD0TTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	edm::ESHandle<TransientTrackBuilder> theB; 
 	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
 	
+	//Selecting Tracks in MiniAOD
 	for(View<pat::PackedCandidate>::const_iterator iTrack1 = tracks->begin(); iTrack1 != tracks->end(); ++iTrack1 ) 
 	{
 		if(iTrack1->charge()==0) continue;
-		if(fabs(iTrack1->eta())>2.1) continue; //All the mesons were reconstructed in the pseudorapidity range |eta|<2
-	   if(iTrack1->pt()<0.3) continue;
-		if(fabs(iTrack1->pdgId())!=321) continue; //211->Pion, 321->Kaon+
-		//if(iTrack1->pt()<1.3) continue;
+		if(fabs(iTrack1->eta())>2.1) continue; //All the mesons were reconstructed in the pseudorapidity range |eta|<2.1
+		if(!(iTrack1->trackHighPurity())) continue;
+	   	if(iTrack1->pt()>0.3)
+		{
+			if(fabs(iTrack1->pdgId()) == 211)
+			{
+				reco::TransientTrack slowpionTT((*theB).build(iTrack1->pseudoTrack()));
+				if(slowpionTT.track().eta() > 2.1) continue;
+				if(slowpionTT.track().normalizedChi2() > 2.5) continue;
+				if(fabs(slowpionTT.track().dxy(RecVtx.position()))<0.1) continue;
+
+			//Fill Vector
+			//slowPiTracks.push_back(&(slowpionTT.at(iTrack1)));	
+			}
+			
+		}
 		
-		//if(iTrack1->dxy(bestVtx.position() > 0.1 )) continue;
+		if(iTrack1->pt()>0.6)
+		{
+			if(fabs(iTrack1->pdgId()) == 211)
+			{
+				reco::TransientTrack PionTT((*theB).build(iTrack1->pseudoTrack()));
+				if(PionTT.track().numberOfValidHits() < 5) continue;
+				//Fill Vector
+			}
 
-		reco::TransientTrack slowpionTT((*theB).build(iTrack1->pseudoTrack()));
-
+			if(fabs(iTrack1->pdgId()) ==211)
+			{
+				reco::TransientTrack KaonTT((*theB).build(iTrack1->pseudoTrack()));
+				if(KaonTT.track().numberOfValidHits() < 5) continue;
+				//Fill Vector
+			}
+		}
+		
 	}
+			
+			
 	
 
-	//SELECTING TRACKS FOR DSTAR
-	//for(size_t i=0; i < t_tks.size(); i++) //AOD
+	//SELECTING TRACKS FOR DSTAR in AOD
+	//for(size_t i=0; i < t_tks.size(); i++) 
 	for(size_t i=0; i < t_tks.size(); i++)
 	{
-		TransientTrack t_trk = t_tks.at(i); //AOD
+		TransientTrack t_trk = t_tks.at(i);
 
 		//|dxy| < 0.1 cm, |dz| < 1 cm; Chi2 < 2.5, Nhits > 5; pt > 0.15 GeV/c.
 		if( fabs(t_trk.track().eta())<2.5 && fabs(t_trk.track().dxy(RecVtx.position()))<0.1 && fabs(t_trk.track().dz(RecVtx.position()))<1. &&
@@ -270,6 +298,7 @@ void DstarD0TTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 	}
 
+//***********************************************************************************
 	void DstarD0TTree::RecDstar(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Vertex& RecVtx){
 
 	using namespace std;
