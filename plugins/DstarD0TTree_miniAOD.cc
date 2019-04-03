@@ -79,7 +79,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 //#include "DsD0/DstarD0/interface/EventData.h"
-#include "/afs/cern.ch/user/r/ragomesd/TrackingShortExercize/CMSSW_10_2_7/src/MyDirectory/PrintOutTracks/plugins/DstarD0TTree.h"
+//#include "/afs/cern.ch/user/r/ragomesd/TrackingShortExercize/CMSSW_10_2_7/src/MyDirectory/PrintOutTracks/plugins/DstarD0TTree.h"
+#include "DstarD0TTree.h"
 //#include "DStarD0/DStarD0Analysis/plugins/CastorRecoParaMsRcd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -216,6 +217,7 @@ void DstarD0TTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	//Selecting Tracks in MiniAOD
 	for(View<pat::PackedCandidate>::const_iterator iTrack1 = tracks->begin(); iTrack1 != tracks->end(); ++iTrack1 ) 
 	{
+		if(!iTrack1->hasTrackDetails()) continue;
 		if(iTrack1->charge()==0) continue;
 		if(fabs(iTrack1->eta())>2.1) continue; //All the mesons were reconstructed in the pseudorapidity range |eta|<2.1
 		if(!(iTrack1->trackHighPurity())) continue;
@@ -228,27 +230,28 @@ void DstarD0TTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 				if(slowpionTT.track().normalizedChi2() > 2.5) continue;
 				if(fabs(slowpionTT.track().dxy(RecVtx.position()))<0.1) continue;
 
-			//Fill Vector
-			//slowPiTracks.push_back(&(slowpionTT.at(iTrack1)));	
+			    //Fill Vector
+			    slowPiTracks.push_back(&(slowpionTT));	
 			}
 			
 		}
 		
 		if(iTrack1->pt()>0.6)
 		{
-			if(fabs(iTrack1->pdgId()) == 211)
-			{
+			//if(fabs(iTrack1->pdgId()) == 211)
+			//{
 				reco::TransientTrack PionTT((*theB).build(iTrack1->pseudoTrack()));
 				if(PionTT.track().numberOfValidHits() < 5) continue;
 				//Fill Vector
-			}
+                goodTracks.push_back(&(PionTT)); //Pion and kaon candidates Tracks with pt > 0.6 GeV/c
+			//}
 
-			if(fabs(iTrack1->pdgId()) ==211)
-			{
-				reco::TransientTrack KaonTT((*theB).build(iTrack1->pseudoTrack()));
-				if(KaonTT.track().numberOfValidHits() < 5) continue;
+			//if(fabs(iTrack1->pdgId()) !=211)
+			//{
+				//reco::TransientTrack KaonTT((*theB).build(iTrack1->pseudoTrack()));
+				//if(KaonTT.track().numberOfValidHits() < 5) continue;
 				//Fill Vector
-			}
+			//}
 		}
 		
 	}
@@ -266,12 +269,12 @@ void DstarD0TTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		if( fabs(t_trk.track().eta())<2.5 && fabs(t_trk.track().dxy(RecVtx.position()))<0.1 && fabs(t_trk.track().dz(RecVtx.position()))<1. &&
 		t_trk.track().normalizedChi2() < 2.5 && t_trk.track().pt() > 0.15)
 		{
-			slowPiTracks.push_back(&(t_tks.at(i))); //Pion slow candidates Tracks with pt > 0.25 GeV/c
+			//slowPiTracks.push_back(&(t_tks.at(i))); //Pion slow candidates Tracks with pt > 0.25 GeV/c
 
 		
 			if( (t_trk.track().numberOfValidHits() > 5) && (t_trk.track().pt() > 0.6) )
 			{
-				goodTracks.push_back(&(t_tks.at(i))); //Pion and kaon candidates Tracks with pt > 0.6 GeV/c
+				//goodTracks.push_back(&(t_tks.at(i))); //Pion and kaon candidates Tracks with pt > 0.6 GeV/c
 			}
 		}
 
@@ -925,7 +928,7 @@ MCpromptD0_DispAngle.clear(); MCpromptD0_Kt.clear();
 
 //***********************************************************************************
 void DstarD0TTree::beginJob(){
-/*
+
 data->Branch("D0Candidates",&D0Candidates,"D0Candidates/I");
 data->Branch("DsCandidates",&DsCandidates,"DsCandidates/I");
 data->Branch("NdsKpiMC",&NdsKpiMC,"NdsKpiMC/I");
@@ -951,7 +954,7 @@ data->Branch("procId",&procId,"procId/I");
 data->Branch("nHFPlus",&nHFPlus,"nHFPlus/I");
 data->Branch("nHFMinus",&nHFMinus,"nHFMinus/I");
 
-data->Branch("HLTPath_",&HLTPath_,"HLTPath_/I");*/
+data->Branch("HLTPath_",&HLTPath_,"HLTPath_/I");
 
 
 //======================================================
@@ -991,17 +994,17 @@ data->Branch("D0KpiDispAngle",&D0Kpi_DispAngle);*/
 //======================================================
 // D* -> D0 + pi_slow  Variables
 //======================================================
-/*
-data->Branch("D0mass",&D0mass);
-data->Branch("Dsmass",&Dsmass);*/
-/*data->Branch("D0_VtxProb",&D0_VtxProb);
+
+/*data->Branch("D0mass",&D0mass);
+data->Branch("Dsmass",&Dsmass);
+data->Branch("D0_VtxProb",&D0_VtxProb);
 data->Branch("D0_VtxPosx",&D0_VtxPosx);
 data->Branch("D0_VtxPosy",&D0_VtxPosy);
 data->Branch("D0_VtxPosz",&D0_VtxPosz);
 data->Branch("D0_Vtxerrx",&D0_Vtxerrx);
 data->Branch("D0_Vtxerry",&D0_Vtxerry);
 data->Branch("D0_Vtxerrz",&D0_Vtxerrz);*/
-/*data->Branch("D0eta",&D0eta);
+data->Branch("D0eta",&D0eta);
 data->Branch("D0phi",&D0phi);
 data->Branch("Dseta",&Dseta);
 data->Branch("Dsphi",&Dsphi);
@@ -1009,9 +1012,9 @@ data->Branch("TrkKpt",&TrkKpt);
 data->Branch("Trkpipt",&Trkpipt);
 data->Branch("TrkSpt",&TrkSpt);
 data->Branch("D0pt",&D0pt);
-data->Branch("Dspt",&Dspt);*/
+data->Branch("Dspt",&Dspt);
 //data->Branch("DSDeltaR",&DSDeltaR);
-/*data->Branch("TrkKnhits",&TrkKnhits);
+data->Branch("TrkKnhits",&TrkKnhits);
 data->Branch("Trkpinhits",&Trkpinhits);
 data->Branch("TrkSnhits",&TrkSnhits);
 //data->Branch("TrkKchi2",&TrkKchi2);*/

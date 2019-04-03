@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("analysis")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+#process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.Geometry.GeometryDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
@@ -11,7 +11,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 process.GlobalTag.globaltag = "101X_dataRun2_Prompt_v9"
 
 #number of events (-1 -> all)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True),
 IgnoreCompletely = cms.untracked.vstring('ProductNotFound'),
@@ -58,20 +58,6 @@ TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
 )
 
 
-process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
-                                           vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                                           minimumNDOF = cms.uint32(4) ,
-                                           maxAbsZ = cms.double(24), 
-                                           maxd0 = cms.double(2) 
-                                           )
-
-process.noscraping = cms.EDFilter("FilterOutScraping",
-applyfilter = cms.untracked.bool(True),
-debugOn = cms.untracked.bool(False),
-numtrack = cms.untracked.uint32(10),
-thresh = cms.untracked.double(0.25)
-)
-
 
 process.analysis = cms.EDAnalyzer('DstarD0TTree',
     # Analysis
@@ -99,4 +85,4 @@ process.TFileService = cms.Service("TFileService",
 #---------------------
 #process.p = cms.Path(process.L1T1coll+process.trigger+process.primaryVertexFilter+process.noscraping+process.analysis)
 
-process.p = cms.Path(process.primaryVertexFilter+process.noscraping+process.analysis)
+process.p = cms.Path(process.analysis)
